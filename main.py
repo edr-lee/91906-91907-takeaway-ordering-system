@@ -1,13 +1,11 @@
 """Takeaway system GUI."""
 
-from takeaway import Item
-
-from tkinter import Tk, Toplevel
-from tkinter import Button as Button
+from tkinter import Button as TkButton
+from tkinter import Tk, Toplevel, messagebox
 from tkinter.ttk import Button as TtkButton
-from tkinter.ttk import Label, Entry, Frame
-import tkinter.messagebox as messagebox
+from tkinter.ttk import Entry, Frame, Label
 
+from takeaway import Item
 from takeaway.cart import Cart
 from takeaway.dishes import ITEMS
 
@@ -30,7 +28,7 @@ def main() -> None:
 
 def show_main_window() -> None:
     root.deiconify()
-    switch_frames(0) # Show the first frame (ordering frame)
+    switch_frames(0)  # Show the first frame (ordering frame)
 
 
 def switch_frames(index: int) -> None:
@@ -38,15 +36,6 @@ def switch_frames(index: int) -> None:
 
 
 def show_greet_window(root: Tk) -> Toplevel:
-    toplevel = Toplevel(root)
-
-    Label(toplevel, text="Welcome to the Takeaway Ordering System!").grid(
-        row=0, column=0, columnspan=2
-    )
-    Label(toplevel, text="Please enter your name:").grid(row=1, column=0)
-    name_entry = Entry(toplevel)
-    name_entry.grid(row=1, column=1)
-
     def start_ordering() -> None:
         name = name_entry.get().strip()
         if name == "":
@@ -58,6 +47,15 @@ def show_greet_window(root: Tk) -> Toplevel:
         cart = Cart(name)
         show_main_window()
         toplevel.destroy()
+
+    toplevel = Toplevel(root)
+
+    Label(toplevel, text="Welcome to the Takeaway Ordering System!").grid(
+        row=0, column=0, columnspan=2
+    )
+    Label(toplevel, text="Please enter your name:").grid(row=1, column=0)
+    name_entry = Entry(toplevel)
+    name_entry.grid(row=1, column=1)
 
     TtkButton(toplevel, text="Start ordering", command=start_ordering).grid(
         row=2, column=0, columnspan=2
@@ -82,7 +80,7 @@ def get_ordering_frame(root: Tk) -> Frame:
         # Yes, we are using unstyled tkinter button.
         # Ttk/themed tkinter does not allow us to change the width/height,
         # at least on macOS.
-        Button(
+        TkButton(
             frame,
             width=20,
             height=3,
