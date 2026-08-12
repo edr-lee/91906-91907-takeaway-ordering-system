@@ -12,3 +12,4 @@ configure-git:
   git config tag.gpgsign false
   git config user.name edr-lee
   git config user.email 204632833+edr-lee@users.noreply.github.com
+  git config --global credential.https://github.com.edr-lee edr-lee
