@@ -1,7 +1,7 @@
 """Takeaway system GUI."""
 
+from tkinter import END, Listbox, Tk, Toplevel, messagebox
 from tkinter import Button as TkButton
-from tkinter import Tk, Toplevel, messagebox
 from tkinter.ttk import Button as TtkButton
 from tkinter.ttk import Entry, Frame, Label
 
@@ -21,6 +21,7 @@ def main() -> None:
 
     show_greet_window(root)
     root.withdraw()
+
     frames.append(get_ordering_frame(root))
 
     root.mainloop()
@@ -65,8 +66,27 @@ def show_greet_window(root: Tk) -> Toplevel:
 
 
 def get_ordering_frame(root: Tk) -> Frame:
+    cart_display = Listbox(root, width=50, height=10)
+    max_column = 0
+
     def add_to_cart(item: Item) -> None:
-        pass
+        cart.add_item(item, 1)
+        update_cart_display(cart)
+
+    def update_cart_display(cart: Cart) -> None:
+        # Destroy the old cart display...
+        cart_display.grid_forget()
+        cart_display.delete(0, END)
+
+        # Rebuild the cart display with new items
+        for item in cart.items:
+            cart_display.insert(END, str(item))
+
+        # Repack
+        # We need to forcefully repaint the UI otherwise the cart display will be empty
+        # until next update, leading to a flash.
+        cart_display.grid(row=0, column=max_column)
+        root.update_idletasks()
 
     frame = Frame(root)
     frame.grid(row=0, column=0, sticky="nsew")
@@ -77,8 +97,9 @@ def get_ordering_frame(root: Tk) -> Frame:
     for i, item in enumerate(ITEMS):
         row = (i // 5) + 1
         col = i % 5  # wrap over if we already have 5 in the current row
+        max_column = max(max_column, col)
         # Yes, we are using unstyled tkinter button.
-        # Ttk/themed tkinter does not allow us to change the width/height,
+        # Ttk/themed tkinter button does not allow us to change the width/height,
         # at least on macOS.
         TkButton(
             frame,
@@ -87,6 +108,12 @@ def get_ordering_frame(root: Tk) -> Frame:
             text=str(item),
             command=lambda item=item: add_to_cart(item),
         ).grid(row=row, column=col, padx=5, pady=5)
+
+    # Build initial cart display
+    # At this point, cart will be undefined.
+    # This dummy cart is used to build the initial cart display,
+    # which will be updated using the proper cart once the user enters their name.
+    update_cart_display(Cart(""))
 
     return frame
 

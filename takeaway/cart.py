@@ -18,6 +18,9 @@ class CartItem:
     def total_price_without_tax(self) -> float:
         return self.item.price_without_tax * self.quantity
 
+    def __str__(self) -> str:
+        return f"{self.item.name} x {self.quantity} (${self.total_price_without_tax():.2f})"
+
 
 class Cart:
     """Represents a cart containing items."""
