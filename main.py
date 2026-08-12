@@ -2,7 +2,7 @@
 
 from takeaway import Item
 
-from tkinter import Tk
+from tkinter import Tk, Toplevel
 from tkinter import Button as Button
 from tkinter.ttk import Button as TtkButton
 from tkinter.ttk import Label, Entry, Frame
@@ -13,33 +13,38 @@ from takeaway.dishes import ITEMS
 
 cart: Cart
 frames: list[Frame] = []
+root: Tk
 
 
 def main() -> None:
+    global root
     root = Tk()
     root.title("Takeaway Ordering System")
 
-    greet_frame = get_greet_frame(root)
-    frames.append(greet_frame)
+    show_greet_window(root)
+    root.withdraw()
     frames.append(get_ordering_frame(root))
 
-    greet_frame.tkraise()
     root.mainloop()
+
+
+def show_main_window() -> None:
+    root.deiconify()
+    switch_frames(0) # Show the first frame (ordering frame)
 
 
 def switch_frames(index: int) -> None:
     frames[index].tkraise()
 
 
-def get_greet_frame(root: Tk) -> Frame:
-    frame = Frame(root)
-    frame.grid(row=0, column=0, sticky="nsew")
+def show_greet_window(root: Tk) -> Toplevel:
+    toplevel = Toplevel(root)
 
-    Label(frame, text="Welcome to the Takeaway Ordering System!").grid(
+    Label(toplevel, text="Welcome to the Takeaway Ordering System!").grid(
         row=0, column=0, columnspan=2
     )
-    Label(frame, text="Please enter your name:").grid(row=1, column=0)
-    name_entry = Entry(frame)
+    Label(toplevel, text="Please enter your name:").grid(row=1, column=0)
+    name_entry = Entry(toplevel)
     name_entry.grid(row=1, column=1)
 
     def start_ordering() -> None:
@@ -51,13 +56,14 @@ def get_greet_frame(root: Tk) -> Frame:
         # valid input: create cart and switch to ordering frame
         global cart
         cart = Cart(name)
-        switch_frames(1)  # TODO: this is terrible
+        show_main_window()
+        toplevel.destroy()
 
-    TtkButton(frame, text="Start ordering", command=start_ordering).grid(
+    TtkButton(toplevel, text="Start ordering", command=start_ordering).grid(
         row=2, column=0, columnspan=2
     )
 
-    return frame
+    return toplevel
 
 
 def get_ordering_frame(root: Tk) -> Frame:
