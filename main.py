@@ -93,10 +93,11 @@ def get_ordering_frame(root: Tk) -> Frame:
 
     Label(frame, text="Takeaway Ordering System!").grid(row=0, column=0, columnspan=5)
 
-    # Show all items in a 5x? grid
+    # Show all items in a $(WIDTH)x? grid
+    WIDTH = 4
     for i, item in enumerate(ITEMS):
-        row = (i // 5) + 1
-        col = i % 5  # wrap over if we already have 5 in the current row
+        row = (i // WIDTH) + 1
+        col = i % WIDTH  # wrap over if we already have $(WIDTH) in the current row
         max_column = max(max_column, col)
         # Yes, we are using unstyled tkinter button.
         # Ttk/themed tkinter button does not allow us to change the width/height,
