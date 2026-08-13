@@ -9,12 +9,17 @@ from takeaway import Item
 from takeaway.cart import Cart
 from takeaway.dishes import ITEMS
 
+ORDER_ITEMS_GRID_WIDTH = 4
+
+
 cart: Cart
 frames: list[Frame] = []
 root: Tk
 
 
 def main() -> None:
+    """Takeaway system GUI."""
+
     global root
     root = Tk()
     root.title("Takeaway Ordering System")
@@ -94,10 +99,10 @@ def get_ordering_frame(root: Tk) -> Frame:
     Label(frame, text="Takeaway Ordering System!").grid(row=0, column=0, columnspan=5)
 
     # Show all items in a $(WIDTH)x? grid
-    WIDTH = 4
     for i, item in enumerate(ITEMS):
-        row = (i // WIDTH) + 1
-        col = i % WIDTH  # wrap over if we already have $(WIDTH) in the current row
+        row = (i // ORDER_ITEMS_GRID_WIDTH) + 1
+        # wrap over if we already have $(WIDTH) in the current row
+        col = i % ORDER_ITEMS_GRID_WIDTH
         max_column = max(max_column, col)
         # Yes, we are using unstyled tkinter button.
         # Ttk/themed tkinter button does not allow us to change the width/height,

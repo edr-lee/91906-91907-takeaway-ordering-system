@@ -16,6 +16,9 @@ class CartItem:
         self.quantity = quantity
 
     def total_price_without_tax(self) -> float:
+        """Calculate the total price of the item (without tax)
+        with the quantity chosen.
+        """
         return self.item.price_without_tax * self.quantity
 
     def __str__(self) -> str:
@@ -33,12 +36,13 @@ class Cart:
     """Tax rate applied to the cart on checkout."""
 
     def __init__(self, name: str):
+        """Create a new cart with the customer's name."""
         self.name = name
         self.items = []
         self.tax_rate = 1.15  # GST in New Zealand: 15%
 
-    def add_item(self, item: Item, quantity: int):
-        """Adds an item to the cart."""
+    def add_item(self, item: Item, quantity: int) -> None:
+        """Add an item to the cart."""
         # If the user has this item already, increase the quantity.
         # Otherwise, add it to the cart.
         for cart_item in self.items:
@@ -48,8 +52,8 @@ class Cart:
         else:
             self.items.append(CartItem(item, quantity))
 
-    def remove_item(self, item: Item):
-        """Removes an item from the cart."""
+    def remove_item(self, item: Item) -> None:
+        """Remove an item from the cart."""
         # If the user has more than one of this item, remove one of the quantity
         # Otherwise remove it outright.
         for cart_item in self.items:
@@ -61,6 +65,7 @@ class Cart:
                 break
 
     def total_price(self) -> float:
+        """Calculate the total price of all items in the cart with tax."""
         return (
             sum(item.total_price_without_tax() for item in self.items) * self.tax_rate
         )
