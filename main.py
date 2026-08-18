@@ -9,9 +9,6 @@ from takeaway import Item
 from takeaway.cart import Cart
 from takeaway.dishes import ITEMS
 
-ORDER_ITEMS_GRID_WIDTH = 4
-
-
 cart: Cart
 frames: list[Frame] = []
 root: Tk
@@ -74,11 +71,8 @@ def get_ordering_frame(root: Tk) -> Frame:
     cart_display = Listbox(root, width=50, height=10)
     max_column = 0
 
-    def add_to_cart(item: Item) -> None:
-        cart.add_item(item, 1)
-        update_cart_display(cart)
-
     def update_cart_display(cart: Cart) -> None:
+        """Update the cart display with new items."""
         # Destroy the old cart display...
         cart_display.grid_forget()
         cart_display.delete(0, END)
@@ -93,27 +87,44 @@ def get_ordering_frame(root: Tk) -> Frame:
         cart_display.grid(row=0, column=max_column)
         root.update_idletasks()
 
+    def get_items_frame(parent: Frame, width: int) -> Frame:
+        """Get an item frame that shows a $(width)x? grid of items
+        and lets the user add them to the cart.
+        """
+
+        def add_to_cart(item: Item) -> None:
+            """Add an item to the cart and repaint the display."""
+            cart.add_item(item, 1)
+            update_cart_display(cart)
+
+        nonlocal max_column
+        frame = Frame(parent)
+
+        for i, item in enumerate(ITEMS):
+            row = (i // width) + 1
+            # wrap over if we already have $(width) in the current row
+            col = i % width
+            max_column = max(max_column, col)
+            # Yes, we are using unstyled tkinter button.
+            # Ttk/themed tkinter button does not allow us to change the width/height,
+            # at least on macOS.
+            TkButton(
+                frame,
+                width=20,
+                height=3,
+                text=str(item),
+                command=lambda item=item: add_to_cart(item),
+            ).grid(row=row, column=col, padx=5, pady=5)
+
+        return frame
+
     frame = Frame(root)
     frame.grid(row=0, column=0, sticky="nsew")
 
     Label(frame, text="Takeaway Ordering System!").grid(row=0, column=0, columnspan=5)
 
-    # Show all items in a $(WIDTH)x? grid
-    for i, item in enumerate(ITEMS):
-        row = (i // ORDER_ITEMS_GRID_WIDTH) + 1
-        # wrap over if we already have $(WIDTH) in the current row
-        col = i % ORDER_ITEMS_GRID_WIDTH
-        max_column = max(max_column, col)
-        # Yes, we are using unstyled tkinter button.
-        # Ttk/themed tkinter button does not allow us to change the width/height,
-        # at least on macOS.
-        TkButton(
-            frame,
-            width=20,
-            height=3,
-            text=str(item),
-            command=lambda item=item: add_to_cart(item),
-        ).grid(row=row, column=col, padx=5, pady=5)
+    # Show all items in a 4x? grid
+    get_items_frame(frame, 4).grid(row=1, column=0, padx=10, pady=10)
 
     # Build initial cart display
     # At this point, cart will be undefined.
