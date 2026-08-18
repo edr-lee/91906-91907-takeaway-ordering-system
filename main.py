@@ -152,6 +152,12 @@ def get_ordering_tab(root: Tk) -> Tab:
         return frame
 
     def ask_go_to_checkout() -> None:
+        if len(cart.items) == 0:
+            messagebox.showerror(
+                "Empty cart", "You cannot go to checkout with an empty cart."
+            )
+            return
+
         if messagebox.askyesno(
             "Go to checkout", "Are you sure you want to go to checkout?"
         ):
