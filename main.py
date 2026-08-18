@@ -104,6 +104,19 @@ def get_ordering_tab(root: Tk) -> Tab:
     cart_display = Listbox(root, width=50, height=10)
     max_column = 0
 
+    def remove_selected_item_from_cart(event) -> None:
+        """Remove one quantity of the selected cart item."""
+        selection = event.widget.curselection()
+        if len(selection) == 0:
+            return
+
+        selected_index = selection[0]
+        if selected_index >= len(cart.items):
+            return
+
+        cart.remove_item(cart.items[selected_index].item)
+        update_cart_display(cart)
+
     def update_cart_display(cart: Cart) -> None:
         """Update the cart display with new items."""
         # Destroy the old cart display...
@@ -166,7 +179,7 @@ def get_ordering_tab(root: Tk) -> Tab:
     frame = Frame(root)
     frame.grid(row=0, column=0, sticky="nsew")
 
-    Label(frame, text="Takeaway Ordering System!").grid(row=0, column=0, columnspan=5)
+    Label(frame, text="Takeaway Ordering System!\nSelect an item to remove 1x of it from the cart.").grid(row=0, column=0, columnspan=5)
 
     # Show all items in a 4x? grid
     get_items_frame(frame, 4).grid(row=1, column=0, padx=10, pady=10)
@@ -175,6 +188,9 @@ def get_ordering_tab(root: Tk) -> Tab:
         frame, text="Checkout", command=lambda: ask_go_to_checkout()
     )
     checkout_button.grid(row=2, column=0, padx=10, pady=10)
+    # https://www.geeksforgeeks.org/python/binding-function-with-double-click-with-tkinter-listbox/
+    # https://stackoverflow.com/questions/6554805/getting-a-callback-when-a-tkinter-listbox-selection-is-changed
+    cart_display.bind("<<ListboxSelect>>", remove_selected_item_from_cart)
 
     # Build initial cart display
     # At this point, cart will be undefined.
