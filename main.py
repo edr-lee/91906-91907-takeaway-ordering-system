@@ -30,7 +30,7 @@ class CheckoutTab(Tab):
         global cart
 
         Label(self.frame, text="Takeaway Ordering System!").grid(row=0, column=0, columnspan=5)
-        Label(self.frame, text="Thank you for ordering!").grid(row=1, column=0, columnspan=5)
+        Label(self.frame, text=f"{cart.name}, thank you for ordering!").grid(row=1, column=0, columnspan=5)
         Label(
             self.frame,
             text=f"Your total order comes to: ${cart.total_price():.2f}",
