@@ -1,5 +1,6 @@
 """Takeaway system GUI."""
 
+import abc
 from tkinter import END, Listbox, Tk, Toplevel, messagebox
 from tkinter import Button as TkButton
 from tkinter.ttk import Button as TtkButton
@@ -9,8 +10,39 @@ from takeaway import Item
 from takeaway.cart import Cart
 from takeaway.dishes import ITEMS
 
+
+class Tab(abc.ABC):
+    """A tab in the GUI."""
+
+    frame: Frame
+
+    def __init__(self, frame: Frame) -> None:
+        self.frame = frame
+
+    def show(self) -> None:
+        """Show the tab."""
+        self.frame.tkraise()
+
+
+class CheckoutTab(Tab):
+    def show(self) -> None:
+        """Show the tab."""
+        global cart
+
+        Label(self.frame, text="Takeaway Ordering System!").grid(row=0, column=0, columnspan=5)
+        Label(self.frame, text="Thank you for ordering!").grid(row=1, column=0, columnspan=5)
+        Label(
+            self.frame,
+            text=f"Your total order comes to: ${cart.total_price():.2f}",
+        ).grid(row=2, column=0)
+
+        TkButton(self.frame, text="Exit", command=root.quit).grid(row=3, column=0, columnspan=5, padx=10, pady=10)
+
+        super().show()
+
+
 cart: Cart
-frames: list[Frame] = []
+tabs: list[Tab] = []
 root: Tk
 
 
@@ -22,20 +54,21 @@ def main() -> None:
     root.title("Takeaway Ordering System")
 
     show_greet_window(root)
-    root.withdraw()
+    root.withdraw()  # greet window will unhide root window
 
-    frames.append(get_ordering_frame(root))
+    tabs.append(get_ordering_tab(root))
+    tabs.append(get_checkout_tab(root))
 
     root.mainloop()
 
 
 def show_main_window() -> None:
     root.deiconify()
-    switch_frames(0)  # Show the first frame (ordering frame)
+    switch_tabs(0)  # Show the first frame (ordering frame)
 
 
-def switch_frames(index: int) -> None:
-    frames[index].tkraise()
+def switch_tabs(index: int) -> None:
+    tabs[index].show()
 
 
 def show_greet_window(root: Tk) -> Toplevel:
@@ -67,7 +100,7 @@ def show_greet_window(root: Tk) -> Toplevel:
     return toplevel
 
 
-def get_ordering_frame(root: Tk) -> Frame:
+def get_ordering_tab(root: Tk) -> Tab:
     cart_display = Listbox(root, width=50, height=10)
     max_column = 0
 
@@ -118,6 +151,12 @@ def get_ordering_frame(root: Tk) -> Frame:
 
         return frame
 
+    def ask_go_to_checkout() -> None:
+        if messagebox.askyesno(
+            "Go to checkout", "Are you sure you want to go to checkout?"
+        ):
+            switch_tabs(-1)  # Show the last frame (checkout frame)
+
     frame = Frame(root)
     frame.grid(row=0, column=0, sticky="nsew")
 
@@ -126,13 +165,25 @@ def get_ordering_frame(root: Tk) -> Frame:
     # Show all items in a 4x? grid
     get_items_frame(frame, 4).grid(row=1, column=0, padx=10, pady=10)
 
+    checkout_button = TtkButton(
+        frame, text="Checkout", command=lambda: ask_go_to_checkout()
+    )
+    checkout_button.grid(row=2, column=0, padx=10, pady=10)
+
     # Build initial cart display
     # At this point, cart will be undefined.
     # This dummy cart is used to build the initial cart display,
     # which will be updated using the proper cart once the user enters their name.
     update_cart_display(Cart(""))
 
-    return frame
+    return Tab(frame)
+
+
+def get_checkout_tab(root: Tk) -> Tab:
+    frame = Frame(root)
+    frame.grid(row=0, column=0, sticky="nsew")
+
+    return CheckoutTab(frame)
 
 
 if __name__ == "__main__":
