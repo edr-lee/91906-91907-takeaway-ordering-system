@@ -26,23 +26,6 @@ class Tab(abc.ABC):
         self.frame.tkraise()
 
 
-class CheckoutTab(Tab):
-    def show(self) -> None:
-        """Show the tab."""
-        global cart
-
-        Label(self.frame, text="Takeaway Ordering System!").grid(row=0, column=0, columnspan=5)
-        Label(self.frame, text=f"{cart.name}, thank you for ordering!").grid(row=1, column=0, columnspan=5)
-        Label(
-            self.frame,
-            text=f"Your total order comes to: ${cart.total_price():.2f}",
-        ).grid(row=2, column=0)
-
-        TkButton(self.frame, text="Exit", command=root.quit).grid(row=3, column=0, columnspan=5, padx=10, pady=10)
-
-        super().show()
-
-
 cart: Cart
 tabs: list[Tab] = []
 root: Tk
@@ -59,7 +42,6 @@ def main() -> None:
     root.withdraw()  # greet window will unhide root window
 
     tabs.append(get_ordering_tab(root))
-    tabs.append(get_checkout_tab(root))
 
     root.mainloop()
 
@@ -67,6 +49,25 @@ def main() -> None:
 def show_main_window() -> None:
     root.deiconify()
     switch_tabs(0)  # Show the first frame (ordering frame)
+
+
+def show_checkout_window() -> Toplevel:
+    root.withdraw()  # can't destroy main window because it'll kill toplevel
+    toplevel = Toplevel(root)
+
+    Label(toplevel, text="Thank you for using the Takeaway Ordering System!").grid(
+        row=0, column=0, columnspan=2
+    )
+    Label(
+        toplevel,
+        text=f"Price of items: ${cart.total_price_without_tax():.2f}\nGST: ${cart.tax_amount():.2f}\nTotal price: ${cart.total_price_with_tax():.2f}",
+    ).grid(row=1, column=0)
+
+    TtkButton(toplevel, text="Exit", command=root.destroy).grid(
+        row=2, column=0, columnspan=2
+    )
+
+    return toplevel
 
 
 def switch_tabs(index: int) -> None:
@@ -183,12 +184,15 @@ def get_ordering_tab(root: Tk) -> Tab:
         if messagebox.askyesno(
             "Go to checkout", "Are you sure you want to go to checkout?"
         ):
-            switch_tabs(-1)  # Show the last frame (checkout frame)
+            show_checkout_window()
 
     frame = Frame(root)
     frame.grid(row=0, column=0, sticky="nsew")
 
-    Label(frame, text="Takeaway Ordering System!\nSelect an item below to add it to your cart.\nSelect an item in your cart (right side) to remove 1x of it from the cart.").grid(row=0, column=0, columnspan=5)
+    Label(
+        frame,
+        text="Takeaway Ordering System!\nSelect an item below to add it to your cart.\nSelect an item in your cart (right side) to remove 1x of it from the cart.",
+    ).grid(row=0, column=0, columnspan=5)
 
     # Show all items in a 4x? grid
     get_items_frame(frame, 4).grid(row=1, column=0, padx=10, pady=10)
@@ -208,13 +212,6 @@ def get_ordering_tab(root: Tk) -> Tab:
     update_cart_display(Cart(""))
 
     return Tab(frame)
-
-
-def get_checkout_tab(root: Tk) -> Tab:
-    frame = Frame(root)
-    frame.grid(row=0, column=0, sticky="nsew")
-
-    return CheckoutTab(frame)
 
 
 if __name__ == "__main__":

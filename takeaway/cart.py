@@ -64,8 +64,14 @@ class Cart:
                     self.items.remove(cart_item)
                 break
 
-    def total_price(self) -> float:
+    def total_price_without_tax(self) -> float:
+        """Calculate the total price of all items in the cart without tax."""
+        return sum(item.total_price_without_tax() for item in self.items)
+
+    def tax_amount(self) -> float:
+        """Calculate the GST amount for the cart."""
+        return self.total_price_without_tax() * (self.tax_rate - 1)
+
+    def total_price_with_tax(self) -> float:
         """Calculate the total price of all items in the cart with tax."""
-        return (
-            sum(item.total_price_without_tax() for item in self.items) * self.tax_rate
-        )
+        return self.total_price_without_tax() + self.tax_amount()
