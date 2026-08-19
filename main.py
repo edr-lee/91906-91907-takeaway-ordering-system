@@ -188,7 +188,7 @@ def get_ordering_tab(root: Tk) -> Tab:
     frame = Frame(root)
     frame.grid(row=0, column=0, sticky="nsew")
 
-    Label(frame, text="Takeaway Ordering System!\nSelect an item to remove 1x of it from the cart.").grid(row=0, column=0, columnspan=5)
+    Label(frame, text="Takeaway Ordering System!\nSelect an item below to add it to your cart.\nSelect an item in your cart (right side) to remove 1x of it from the cart.").grid(row=0, column=0, columnspan=5)
 
     # Show all items in a 4x? grid
     get_items_frame(frame, 4).grid(row=1, column=0, padx=10, pady=10)
