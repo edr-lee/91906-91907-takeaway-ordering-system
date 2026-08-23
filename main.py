@@ -8,6 +8,7 @@ from tkinter.ttk import Entry, Frame, Label
 
 from takeaway import Item
 from takeaway.cart import Cart
+from takeaway.data import Data
 from takeaway.dishes import ITEMS
 
 
@@ -26,6 +27,7 @@ class Tab(abc.ABC):
         self.frame.tkraise()
 
 
+data: Data = Data()
 cart: Cart
 tabs: list[Tab] = []
 root: Tk
@@ -60,7 +62,9 @@ def show_checkout_window() -> Toplevel:
     )
     Label(
         toplevel,
-        text=f"Price of items: ${cart.total_price_without_tax():.2f}\nGST: ${cart.tax_amount():.2f}\nTotal price: ${cart.total_price_with_tax():.2f}",
+        text=f"""Price of items: ${cart.total_price_without_tax():.2f}
+GST: ${cart.tax_amount():.2f}
+Total price: ${cart.total_price_with_tax():.2f}""",  # noqa: F821
     ).grid(row=1, column=0)
 
     TtkButton(toplevel, text="Exit", command=root.destroy).grid(
@@ -191,7 +195,9 @@ def get_ordering_tab(root: Tk) -> Tab:
 
     Label(
         frame,
-        text="Takeaway Ordering System!\nSelect an item below to add it to your cart.\nSelect an item in your cart (right side) to remove 1x of it from the cart.",
+        text="""Takeaway Ordering System!
+Select an item below to add it to your cart.
+Select an item in your cart (right side) to remove 1x of it from the cart.""",
     ).grid(row=0, column=0, columnspan=5)
 
     # Show all items in a 4x? grid
