@@ -1,10 +1,14 @@
 """Takeaway system GUI."""
 
 import abc
+from pathlib import Path
 from tkinter import END, Listbox, Tk, Toplevel, messagebox
 from tkinter import Button as TkButton
+from tkinter import Label as TkLabel
 from tkinter.ttk import Button as TtkButton
 from tkinter.ttk import Entry, Frame, Label
+
+from PIL import Image, ImageTk
 
 from takeaway import Item
 from takeaway.cart import Cart
@@ -157,6 +161,12 @@ def get_ordering_tab(root: Tk) -> Tab:
             cart.add_item(item, 1)
             update_cart_display(cart)
 
+        def load_item_image(item: Item) -> ImageTk.PhotoImage:
+            image_path = Path(__file__).parent / "assets" / "img" / item.image_filename
+            image = Image.open(image_path)
+            image = image.resize((100, 100), Image.LANCZOS)
+            return ImageTk.PhotoImage(image)
+
         nonlocal max_column
         frame = Frame(parent)
 
@@ -168,13 +178,22 @@ def get_ordering_tab(root: Tk) -> Tab:
             # Yes, we are using unstyled tkinter button.
             # Ttk/themed tkinter button does not allow us to change the width/height,
             # at least on macOS.
+            item_frame = Frame(frame)
+
+            # have to set it twice for some reason, otherwise the image won't show up :/
+            image = load_item_image(item)
+            image_label = TkLabel(item_frame, image=image)
+            image_label.image = image
+            image_label.grid(row=0, column=0, padx=5, pady=5)
+
             TkButton(
-                frame,
+                item_frame,
                 width=20,
                 height=3,
                 text=str(item),
                 command=lambda item=item: add_to_cart(item),
-            ).grid(row=row, column=col, padx=5, pady=5)
+            ).grid(row=0, column=1, padx=5, pady=5)
+            item_frame.grid(row=row, column=col, padx=5, pady=5)
 
         return frame
 
@@ -200,8 +219,8 @@ Select an item below to add it to your cart.
 Select an item in your cart (right side) to remove 1x of it from the cart.""",
     ).grid(row=0, column=0, columnspan=5)
 
-    # Show all items in a 4x? grid
-    get_items_frame(frame, 4).grid(row=1, column=0, padx=10, pady=10)
+    # Show all items in a 2x? grid
+    get_items_frame(frame, 2).grid(row=1, column=0, padx=10, pady=10)
 
     checkout_button = TtkButton(
         frame, text="Checkout", command=lambda: ask_go_to_checkout()
