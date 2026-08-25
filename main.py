@@ -42,12 +42,12 @@ def main() -> None:
 
     global root
     root = Tk()
-    root.title("Takeaway Ordering System")
+    root.title(f"{data.name} Ordering System")
 
     show_greet_window(root)
     root.withdraw()  # greet window will unhide root window
 
-    tabs.append(get_ordering_tab(root))
+    tabs.append(get_ordering_tab(root, ITEMS))
 
     root.mainloop()
 
@@ -61,7 +61,7 @@ def show_checkout_window() -> Toplevel:
     root.withdraw()  # can't destroy main window because it'll kill toplevel
     toplevel = Toplevel(root)
 
-    Label(toplevel, text="Thank you for using the Takeaway Ordering System!").grid(
+    Label(toplevel, text=f"Thank you for ordering at {data.name}!").grid(
         row=0, column=0, columnspan=2
     )
     Label(
@@ -99,7 +99,7 @@ def show_greet_window(root: Tk) -> Toplevel:
 
     toplevel = Toplevel(root)
 
-    Label(toplevel, text="Welcome to the Takeaway Ordering System!").grid(
+    Label(toplevel, text=f"Welcome to the {data.name} ordering system!").grid(
         row=0, column=0, columnspan=2
     )
     Label(toplevel, text="Please enter your name:").grid(row=1, column=0)
@@ -218,7 +218,7 @@ def get_ordering_tab(root: Tk, items: list[Item]) -> Tab:
 
     Label(
         frame,
-        text="""Takeaway Ordering System!
+        text=f"""Ordering at {data.name}!
 Select an item below to add it to your cart.
 Select an item in your cart (right side) to remove 1x of it from the cart.""",
     ).grid(row=0, column=0, columnspan=5)
