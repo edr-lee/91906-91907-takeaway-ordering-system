@@ -13,7 +13,7 @@ from PIL import Image, ImageTk
 from takeaway import Item
 from takeaway.cart import Cart
 from takeaway.data import Data
-from takeaway.dishes import ITEMS
+from takeaway.dishes import ITEMS, DRINKS, DISHES
 
 
 class Tab(abc.ABC):
@@ -113,7 +113,7 @@ def show_greet_window(root: Tk) -> Toplevel:
     return toplevel
 
 
-def get_ordering_tab(root: Tk) -> Tab:
+def get_ordering_tab(root: Tk, items: list[Item]) -> Tab:
     # Destroy ordering frame if it already exists
     try:
         root.children["ordering_frame"].destroy()
@@ -224,12 +224,26 @@ Select an item in your cart (right side) to remove 1x of it from the cart.""",
     ).grid(row=0, column=0, columnspan=5)
 
     # Show all items in a 2x? grid
-    get_items_frame(frame, 2, ITEMS).grid(row=1, column=0, padx=10, pady=10)
+    get_items_frame(frame, 2, items).grid(row=1, column=0, padx=10, pady=10)
+
+    # Filtering items
+    dishes_button = TtkButton(
+        frame, text="Dishes", command=lambda: update_ordering_tab(root, DISHES)
+    )
+    dishes_button.grid(row=2, column=0, padx=10, pady=5)
+    drinks_button = TtkButton(
+        frame, text="Drinks", command=lambda: update_ordering_tab(root, DRINKS)
+    )
+    drinks_button.grid(row=3, column=0, padx=10, pady=5)
+    all_items_button = TtkButton(
+        frame, text="All Items", command=lambda: update_ordering_tab(root, ITEMS)
+    )
+    all_items_button.grid(row=4, column=0, padx=10, pady=5)
 
     checkout_button = TtkButton(
         frame, text="Checkout", command=lambda: ask_go_to_checkout()
     )
-    checkout_button.grid(row=2, column=0, padx=10, pady=10)
+    checkout_button.grid(row=4, column=1, padx=10, pady=10)
     # https://www.geeksforgeeks.org/python/binding-function-with-double-click-with-tkinter-listbox/
     # https://stackoverflow.com/questions/6554805/getting-a-callback-when-a-tkinter-listbox-selection-is-changed
     cart_display.bind("<<ListboxSelect>>", remove_selected_item_from_cart)
@@ -246,6 +260,9 @@ Select an item in your cart (right side) to remove 1x of it from the cart.""",
 
     return Tab(frame)
 
+
+def update_ordering_tab(root: Tk, items: list[Item]) -> None:
+    tabs[0] = get_ordering_tab(root, items)
 
 if __name__ == "__main__":
     main()
