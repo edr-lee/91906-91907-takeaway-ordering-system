@@ -1,6 +1,7 @@
 ```mermaid
 ---
 title: Takeaway ordering system class diagram
+layout: elk
 ---
 
 %% Order:
