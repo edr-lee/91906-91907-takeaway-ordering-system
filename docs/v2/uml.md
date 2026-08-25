@@ -1,6 +1,6 @@
 ```mermaid
 ---
-title: Takeaway ordering system V1 class diagram
+title: Takeaway ordering system V2 class diagram
 layout: elk
 ---
 

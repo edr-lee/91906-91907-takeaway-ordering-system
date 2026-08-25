@@ -1,4 +1,8 @@
 ```mermaid
+---
+title: Takeaway ordering system V1 flowchart
+---
+
 flowchart TD
   start(Program started) -->
   name[Welcome and ask user for name] -->
