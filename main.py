@@ -60,6 +60,9 @@ def show_main_window() -> None:
 def show_checkout_window() -> Toplevel:
     root.withdraw()  # can't destroy main window because it'll kill toplevel
     toplevel = Toplevel(root)
+    # don't leave the main window hanging if user closes toplevel
+    # https://stackoverflow.com/questions/111155/how-do-i-handle-the-window-close-event-in-tkinter
+    toplevel.protocol("WM_DELETE_WINDOW", root.destroy)
 
     Label(toplevel, text=f"Thank you for ordering at {data.name}!").grid(
         row=0, column=0, columnspan=2
@@ -98,6 +101,7 @@ def show_greet_window(root: Tk) -> Toplevel:
         toplevel.destroy()
 
     toplevel = Toplevel(root)
+    toplevel.protocol("WM_DELETE_WINDOW", root.destroy)
 
     Label(toplevel, text=f"Welcome to the {data.name} ordering system!").grid(
         row=0, column=0, columnspan=2
