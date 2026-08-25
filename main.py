@@ -120,10 +120,6 @@ def get_ordering_tab(root: Tk) -> Tab:
     def remove_selected_item_from_cart(event) -> None:
         """Remove one quantity of the selected cart item."""
 
-        # Do not remove items if we are in the checkout tab
-        if tabs[-1].active:
-            return
-
         selection = event.widget.curselection()
         if len(selection) == 0:
             return
