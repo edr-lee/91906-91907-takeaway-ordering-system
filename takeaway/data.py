@@ -18,7 +18,17 @@ class Data:
         if path_to_data_json is None:
             path_to_data_json = takeaway_json_path
 
-        with open(path_to_data_json, "r") as file:
-            self._raw = loads(file.read())
+        try:
+            with open(path_to_data_json, "r") as file:
+                self._raw = loads(file.read())
+        except:
+            self.create_template(path_to_data_json)
+            self.__init__(path_to_data_json)
 
         self.name = self._raw.get("name", "Takeaway")
+
+    def create_template(self, path_to_data_json: str | os.PathLike[str]) -> None:
+        with open(path_to_data_json, "w") as file:
+            file.write("""{
+  "name": "Takeaway Name"
+}""")
