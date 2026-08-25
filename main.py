@@ -114,6 +114,12 @@ def show_greet_window(root: Tk) -> Toplevel:
 
 
 def get_ordering_tab(root: Tk) -> Tab:
+    # Destroy ordering frame if it already exists
+    try:
+        root.children["ordering_frame"].destroy()
+    except KeyError:
+        pass
+
     cart_display = Listbox(root, width=50, height=10)
     max_column = 0
 
@@ -147,7 +153,7 @@ def get_ordering_tab(root: Tk) -> Tab:
         cart_display.grid(row=0, column=max_column)
         root.update_idletasks()
 
-    def get_items_frame(parent: Frame, width: int) -> Frame:
+    def get_items_frame(parent: Frame, width: int, items: list[Item]) -> Frame:
         """Get an item frame that shows a $(width)x? grid of items
         and lets the user add them to the cart.
         """
@@ -163,10 +169,12 @@ def get_ordering_tab(root: Tk) -> Tab:
             image = image.resize((100, 100), Image.LANCZOS)
             return ImageTk.PhotoImage(image)
 
+
+
         nonlocal max_column
         frame = Frame(parent)
 
-        for i, item in enumerate(ITEMS):
+        for i, item in enumerate(items):
             row = (i // width) + 1
             # wrap over if we already have $(width) in the current row
             col = i % width
@@ -205,7 +213,7 @@ def get_ordering_tab(root: Tk) -> Tab:
         ):
             show_checkout_window()
 
-    frame = Frame(root)
+    frame = Frame(root, name="ordering_frame")
     frame.grid(row=0, column=0, sticky="nsew")
 
     Label(
@@ -216,7 +224,7 @@ Select an item in your cart (right side) to remove 1x of it from the cart.""",
     ).grid(row=0, column=0, columnspan=5)
 
     # Show all items in a 2x? grid
-    get_items_frame(frame, 2).grid(row=1, column=0, padx=10, pady=10)
+    get_items_frame(frame, 2, ITEMS).grid(row=1, column=0, padx=10, pady=10)
 
     checkout_button = TtkButton(
         frame, text="Checkout", command=lambda: ask_go_to_checkout()
@@ -226,11 +234,15 @@ Select an item in your cart (right side) to remove 1x of it from the cart.""",
     # https://stackoverflow.com/questions/6554805/getting-a-callback-when-a-tkinter-listbox-selection-is-changed
     cart_display.bind("<<ListboxSelect>>", remove_selected_item_from_cart)
 
-    # Build initial cart display
-    # At this point, cart will be undefined.
-    # This dummy cart is used to build the initial cart display,
-    # which will be updated using the proper cart once the user enters their name.
-    update_cart_display(Cart(""))
+    # Build cart display
+    # At this point, cart may be undefined.
+    try:
+        cart_to_use = cart
+    except NameError:
+        # This dummy cart is used to build the initial cart display,
+        # which will be updated using the proper cart once the user enters their name.
+        cart_to_use = Cart("")
+    update_cart_display(cart_to_use)
 
     return Tab(frame)
 
