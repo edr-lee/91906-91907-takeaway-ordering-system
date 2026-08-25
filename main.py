@@ -227,19 +227,21 @@ Select an item in your cart (right side) to remove 1x of it from the cart.""",
     get_items_frame(frame, 2, items).grid(row=1, column=0, padx=10, pady=10)
 
     # Filtering items
-    dishes_button = TtkButton(
-        frame, text="Dishes", command=lambda: update_ordering_tab(root, DISHES)
-    )
-    dishes_button.grid(row=2, column=0, padx=10, pady=5)
-    drinks_button = TtkButton(
-        frame, text="Drinks", command=lambda: update_ordering_tab(root, DRINKS)
-    )
-    drinks_button.grid(row=3, column=0, padx=10, pady=5)
-    all_items_button = TtkButton(
-        frame, text="All Items", command=lambda: update_ordering_tab(root, ITEMS)
-    )
-    all_items_button.grid(row=4, column=0, padx=10, pady=5)
+    filter_button_frames = Frame(frame)
+    # All dishes
+    TtkButton(
+        filter_button_frames, text="Dishes", command=lambda: update_ordering_tab(root, DISHES)
+    ).pack()
+    # All drinks
+    TtkButton(
+        filter_button_frames, text="Drinks", command=lambda: update_ordering_tab(root, DRINKS)
+    ).pack()
+    # All items
+    TtkButton(
+        filter_button_frames, text="All Items", command=lambda: update_ordering_tab(root, ITEMS)
+    ).pack()
 
+    filter_button_frames.grid(row=1, column=1, padx=10, pady=10)
     checkout_button = TtkButton(
         frame, text="Checkout", command=lambda: ask_go_to_checkout()
     )
