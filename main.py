@@ -103,7 +103,7 @@ def show_greet_window(root: Tk) -> Toplevel:
     toplevel = Toplevel(root)
     toplevel.protocol("WM_DELETE_WINDOW", root.destroy)
 
-    Label(toplevel, text=f"Welcome to the {data.name} ordering system!").grid(
+    Label(toplevel, text=f"Welcome to {data.name} ordering system!").grid(
         row=0, column=0, columnspan=2
     )
     Label(toplevel, text="Please enter your name:").grid(row=1, column=0)
