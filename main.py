@@ -2,15 +2,15 @@
 
 from abc import ABC
 from pathlib import Path
-from tkinter import END, Listbox, Tk, Toplevel, messagebox
+from tkinter import Tk, Toplevel, messagebox
 from tkinter import Button as TkButton
 from tkinter import Label as TkLabel
-from tkinter.ttk import Button as TtkButton
+from tkinter.ttk import Button as TtkButton, Treeview
 from tkinter.ttk import Entry, Frame, Label
 
 from PIL import Image, ImageDraw, ImageTk
 
-from takeaway import Item
+from takeaway import Dish, Drink, Item
 from takeaway.cart import Cart
 from takeaway.data import TakeawayData
 from takeaway.dishes import DISHES, DRINKS, ITEMS
@@ -125,38 +125,73 @@ def get_ordering_tab(root: Tk, items: list[Item]) -> Tab:
     except KeyError:
         pass
 
-    cart_display = Listbox(root, width=50, height=10)
-    max_column = 0
+    frame = Frame(root, name="ordering_frame")
+    frame.grid(row=0, column=0, sticky="nsew")
+
+    cart_display = Treeview(
+        frame,
+        columns=("quantity", "price_for_one", "total_price"),
+        show="tree headings",
+        height=10,
+    )
+    cart_display.heading("#0", text="Item name")
+    cart_display.heading("quantity", text="Quantity")
+    cart_display.heading("price_for_one", text="Price for one")
+    cart_display.heading("total_price", text="Total price")
+    cart_display.column("#0", anchor="w", width=220)
+    cart_display.column("quantity", anchor="center", width=80)
+    cart_display.column("price_for_one", anchor="e", width=100)
+    cart_display.column("total_price", anchor="e", width=100)
+    cart_row_items: dict[str, Item] = {}
 
     def remove_selected_item_from_cart(event) -> None:
         """Remove one quantity of the selected cart item."""
 
-        selection = event.widget.curselection()
+        selection = event.widget.selection()
         if len(selection) == 0:
             return
 
-        selected_index = selection[0]
-        if selected_index >= len(cart.items):
+        selected_iid = selection[0]
+        selected_item = cart_row_items.get(selected_iid)
+        if selected_item is None:
             return
 
-        cart.remove_item(cart.items[selected_index].item)
+        cart.remove_item(selected_item)
         update_cart_display(cart)
 
     def update_cart_display(cart: Cart) -> None:
         """Update the cart display with new items."""
-        # Destroy the old cart display...
-        cart_display.grid_forget()
-        cart_display.delete(0, END)
+        cart_display.delete(*cart_display.get_children())
+        cart_row_items.clear()
 
-        # Rebuild the cart display with new items
-        for item in cart.items:
-            cart_display.insert(END, str(item))
+        dishes_group_iid = cart_display.insert(
+            "", "end", iid="group_dishes", text="Dishes", open=True
+        )
+        drinks_group_iid = cart_display.insert(
+            "", "end", iid="group_drinks", text="Drinks", open=True
+        )
 
-        # Repack
-        # We need to forcefully repaint the UI otherwise the cart display will be empty
-        # until next update, leading to a flash.
-        cart_display.grid(row=0, column=max_column)
-        root.update_idletasks()
+        # Rebuild the cart display with new items grouped by category.
+        for i, cart_item in enumerate(cart.items):
+            if isinstance(cart_item.item, Dish):
+                parent_iid = dishes_group_iid
+            elif isinstance(cart_item.item, Drink):
+                parent_iid = drinks_group_iid
+            else:
+                raise ValueError(f"Unknown item type: {type(cart_item.item)}")
+            item_iid = f"item_{i}"
+            cart_row_items[item_iid] = cart_item.item
+            cart_display.insert(
+                parent_iid,
+                "end",
+                iid=item_iid,
+                text=cart_item.item.name,
+                values=(
+                    cart_item.quantity,
+                    f"${cart_item.item.price_without_tax:.2f}",
+                    f"${cart_item.total_price_without_tax():.2f}",
+                ),
+            )
 
     def get_items_frame(parent: Frame, width: int, items: list[Item]) -> Frame:
         """Get an item frame that shows a $(width)x? grid of items
@@ -190,14 +225,12 @@ def get_ordering_tab(root: Tk, items: list[Item]) -> Tab:
 
             return ImageTk.PhotoImage(image)
 
-        nonlocal max_column
         frame = Frame(parent)
 
         for i, item in enumerate(items):
             row = (i // width) + 1
             # wrap over if we already have $(width) in the current row
             col = i % width
-            max_column = max(max_column, col)
             # Yes, we are using unstyled tkinter button.
             # Ttk/themed tkinter button does not allow us to change the width/height,
             # at least on macOS.
@@ -209,13 +242,17 @@ def get_ordering_tab(root: Tk, items: list[Item]) -> Tab:
             image_label.image = image
             image_label.grid(row=0, column=0, padx=5, pady=5)
 
-            TkButton(
+            # bg and activebg do not work on macOS TkButton,
+            # and TtkButton does not allow us to change the width/height...
+            item_button = TkButton(
                 item_frame,
                 width=20,
                 height=3,
                 text=str(item),
+                font=data.style.lookup("TButton", "font"),  # need to manually grab TTk style because this is Tk object
                 command=lambda item=item: add_to_cart(item),
-            ).grid(row=0, column=1, padx=5, pady=5)
+            )
+            item_button.grid(row=0, column=1, padx=5, pady=5)
             item_frame.grid(row=row, column=col, padx=5, pady=5)
 
         return frame
@@ -231,9 +268,6 @@ def get_ordering_tab(root: Tk, items: list[Item]) -> Tab:
             "Go to checkout", "Are you sure you want to go to checkout?"
         ):
             show_checkout_window()
-
-    frame = Frame(root, name="ordering_frame")
-    frame.grid(row=0, column=0, sticky="nsew")
 
     Label(
         frame,
@@ -271,9 +305,8 @@ Select an item in your cart (right side) to remove 1x of it from the cart.""",
         frame, text="Checkout", command=lambda: ask_go_to_checkout()
     )
     checkout_button.grid(row=4, column=1, padx=10, pady=10)
-    # https://www.geeksforgeeks.org/python/binding-function-with-double-click-with-tkinter-listbox/
-    # https://stackoverflow.com/questions/6554805/getting-a-callback-when-a-tkinter-listbox-selection-is-changed
-    cart_display.bind("<<ListboxSelect>>", remove_selected_item_from_cart)
+    cart_display.grid(row=1, column=2, rowspan=4, padx=10, pady=10, sticky="ns")
+    cart_display.bind("<<TreeviewSelect>>", remove_selected_item_from_cart)
 
     # Build cart display
     # At this point, cart may be undefined.
