@@ -1,6 +1,6 @@
 """Takeaway system GUI."""
 
-import abc
+from abc import ABC
 from pathlib import Path
 from tkinter import END, Listbox, Tk, Toplevel, messagebox
 from tkinter import Button as TkButton
@@ -16,7 +16,7 @@ from takeaway.data import TakeawayData
 from takeaway.dishes import DISHES, DRINKS, ITEMS
 
 
-class Tab(abc.ABC):
+class Tab(ABC):
     """A tab in the GUI."""
 
     frame: Frame
@@ -177,7 +177,11 @@ def get_ordering_tab(root: Tk, items: list[Item]) -> Tab:
             mask_image = Image.new("L", image.size, 0)
             mask_draw = ImageDraw.Draw(mask_image)
             mask_draw.rounded_rectangle(
-                [(0, 0), (image.size[0], image.size[1])], radius=25, fill="white", outline=None, width=100
+                [(0, 0), (image.size[0], image.size[1])],
+                radius=25,
+                fill="white",
+                outline=None,
+                width=100,
             )
             image.putalpha(
                 mask_image
