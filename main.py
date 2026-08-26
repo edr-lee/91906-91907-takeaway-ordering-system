@@ -31,7 +31,7 @@ class Tab(ABC):
         self.frame.tkraise()
 
 
-data: TakeawayData = TakeawayData()
+data: TakeawayData
 cart: Cart
 tabs: list[Tab] = []
 root: Tk
@@ -40,8 +40,9 @@ root: Tk
 def main() -> None:
     """Takeaway system GUI."""
 
-    global root
+    global data, root
     root = Tk()
+    data = TakeawayData(root)
     root.title(f"{data.name} Ordering System")
 
     show_greet_window(root)

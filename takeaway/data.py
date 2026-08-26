@@ -1,4 +1,6 @@
 from __future__ import annotations
+from tkinter import Tk
+from tkinter.ttk import Style
 
 import os
 from json import loads
@@ -16,8 +18,13 @@ class TakeawayData:
     """Name of the takeaway."""
 
     _raw: dict[str, Any]
+    style: Style
 
-    def __init__(self, path_to_data_json: str | os.PathLike[str] | None = None):
+    def __init__(
+        self,
+        root: Tk,
+        path_to_data_json: str | os.PathLike[str] | None = None,
+    ):
         if path_to_data_json is None:
             path_to_data_json = takeaway_json_path
 
@@ -26,14 +33,22 @@ class TakeawayData:
                 self._raw = loads(file.read())
             # deserialize into our class
             self.name = self._raw["name"]
+
+            font = self._raw["font"]
+            self.style = Style(root)
+            self.style.configure("TLabel", font=(font, 12))
+            self.style.configure("TButton", font=(font, 12))
+            self.style.configure("TEntry", font=(font, 12))
+            self.style.configure("TTreebox", font=(font, 12))
         except (KeyError, FileNotFoundError):
             self.create_template(path_to_data_json)
-            self.__init__(path_to_data_json)
+            self.__init__(root, path_to_data_json)
 
     def create_template(self, path_to_data_json: str | os.PathLike[str]) -> None:
         with open(path_to_data_json, "w") as file:
             file.write("""{
-  "name": "Takeaway Name"
+  "name": "Takeaway Name",
+  "font": "Arial"
 }""")
 
 
