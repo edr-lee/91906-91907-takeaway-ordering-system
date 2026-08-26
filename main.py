@@ -127,12 +127,14 @@ def get_ordering_tab(root: Tk, items: list[Item]) -> Tab:
 
     frame = Frame(root, name="ordering_frame")
     frame.grid(row=0, column=0, sticky="nsew")
+    items_per_page = 8
+    current_page = 0
 
     cart_display = Treeview(
         frame,
         columns=("quantity", "price_for_one", "total_price"),
         show="tree headings",
-        height=10,
+        height=25,
     )
     cart_display.heading("#0", text="Item name")
     cart_display.heading("quantity", text="Quantity")
@@ -257,6 +259,47 @@ def get_ordering_tab(root: Tk, items: list[Item]) -> Tab:
 
         return frame
 
+    def render_items_page() -> None:
+        nonlocal current_page
+        for child in item_grid_frame.winfo_children():
+            child.destroy()
+
+        total_pages = max(1, (len(items) + items_per_page - 1) // items_per_page)
+        current_page = max(0, min(current_page, total_pages - 1))
+        start_index = current_page * items_per_page
+        end_index = start_index + items_per_page
+        current_items = items[start_index:end_index]
+
+        get_items_frame(item_grid_frame, 2, current_items).grid(
+            row=0, column=0, padx=10, pady=10
+        )
+
+        # don't show page buttons if there is only one page
+        if total_pages > 1:
+            pagination_frame.grid(row=2, column=0, padx=10, pady=(0, 10))
+            page_label.config(text=f"Page {current_page + 1} / {total_pages}")
+            # disable buttons if we can't move backwards/forwards.
+            if current_page == 0:
+                previous_page_button.state(["disabled"])
+            else:
+                previous_page_button.state(["!disabled"])
+            if current_page >= total_pages - 1:
+                next_page_button.state(["disabled"])
+            else:
+                next_page_button.state(["!disabled"])
+        else:
+            pagination_frame.grid_remove()
+
+    def go_to_previous_page() -> None:
+        nonlocal current_page
+        current_page -= 1
+        render_items_page()
+
+    def go_to_next_page() -> None:
+        nonlocal current_page
+        current_page += 1
+        render_items_page()
+
     def ask_go_to_checkout() -> None:
         if len(cart.items) == 0:
             messagebox.showerror(
@@ -276,8 +319,18 @@ Select an item below to add it to your cart.
 Select an item in your cart (right side) to remove 1x of it from the cart.""",
     ).grid(row=0, column=0, columnspan=5)
 
-    # Show all items in a 2x? grid
-    get_items_frame(frame, 2, items).grid(row=1, column=0, padx=10, pady=10)
+    item_grid_frame = Frame(frame)
+    item_grid_frame.grid(row=1, column=0, padx=10, pady=10)
+
+    pagination_frame = Frame(frame)
+    previous_page_button = TtkButton(
+        pagination_frame, text="Previous", command=go_to_previous_page
+    )
+    previous_page_button.pack(side="left", padx=5)
+    page_label = Label(pagination_frame, text="")
+    page_label.pack(side="left", padx=5)
+    next_page_button = TtkButton(pagination_frame, text="Next", command=go_to_next_page)
+    next_page_button.pack(side="left", padx=5)
 
     # Filtering items
     filter_button_frames = Frame(frame)
@@ -317,12 +370,17 @@ Select an item in your cart (right side) to remove 1x of it from the cart.""",
         # which will be updated using the proper cart once the user enters their name.
         cart_to_use = Cart("")
     update_cart_display(cart_to_use)
+    render_items_page()
 
     return Tab(frame)
 
 
 def update_ordering_tab(root: Tk, items: list[Item]) -> None:
     tabs[0] = get_ordering_tab(root, items)
+    tabs[0].show()
+    # we need to repaint UI at this point otherwise
+    # the rest of the UI will not be visible until user moves their mouse
+    root.update_idletasks()
 
 
 if __name__ == "__main__":
