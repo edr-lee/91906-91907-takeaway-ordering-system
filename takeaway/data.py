@@ -1,10 +1,11 @@
 from __future__ import annotations
-from takeaway import Dish, Drink, Item
 
 import os
 from json import loads
 from pathlib import Path
 from typing import Any
+
+from takeaway import Dish, Drink, Item
 
 takeaway_json_path = Path(os.path.realpath(__file__)).parent.parent / "takeaway.json"
 items_json_path = Path(os.path.realpath(__file__)).parent.parent / "items.json"
@@ -34,6 +35,7 @@ class TakeawayData:
             file.write("""{
   "name": "Takeaway Name"
 }""")
+
 
 class ItemsData:
     items: list[Item]
