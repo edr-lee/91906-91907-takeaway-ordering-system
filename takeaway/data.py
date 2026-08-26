@@ -8,7 +8,7 @@ from typing import Any
 takeaway_json_path = Path(os.path.realpath(__file__)).parent.parent / "takeaway.json"
 
 
-class Data:
+class TakeawayData:
     name: str
     """Name of the takeaway."""
 

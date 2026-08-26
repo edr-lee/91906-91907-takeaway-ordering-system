@@ -12,7 +12,7 @@ from PIL import Image, ImageTk
 
 from takeaway import Item
 from takeaway.cart import Cart
-from takeaway.data import Data
+from takeaway.data import TakeawayData
 from takeaway.dishes import ITEMS, DRINKS, DISHES
 
 
@@ -31,7 +31,7 @@ class Tab(abc.ABC):
         self.frame.tkraise()
 
 
-data: Data = Data()
+data: TakeawayData = TakeawayData()
 cart: Cart
 tabs: list[Tab] = []
 root: Tk
