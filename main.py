@@ -8,12 +8,12 @@ from tkinter import Label as TkLabel
 from tkinter.ttk import Button as TtkButton
 from tkinter.ttk import Entry, Frame, Label
 
-from PIL import Image, ImageTk
+from PIL import Image, ImageDraw, ImageTk
 
 from takeaway import Item
 from takeaway.cart import Cart
 from takeaway.data import TakeawayData
-from takeaway.dishes import ITEMS, DRINKS, DISHES
+from takeaway.dishes import DISHES, DRINKS, ITEMS
 
 
 class Tab(abc.ABC):
@@ -171,9 +171,19 @@ def get_ordering_tab(root: Tk, items: list[Item]) -> Tab:
             image_path = Path(__file__).parent / "assets" / "img" / item.image_filename
             image = Image.open(image_path)
             image = image.resize((100, 100), Image.LANCZOS)
+
+            # make the image a rounded rectangle, because it looks nicer
+            # docs: https://pc-pillow.readthedocs.io/en/latest/ImageDraw/ImageDraw_rounded_rectangle.html
+            mask_image = Image.new("L", image.size, 0)
+            mask_draw = ImageDraw.Draw(mask_image)
+            mask_draw.rounded_rectangle(
+                [(0, 0), (100, 100)], radius=25, fill="white", outline=None, width=100
+            )
+            image.putalpha(
+                mask_image
+            )  # fill has 00 transparency, outside has FF transparency
+
             return ImageTk.PhotoImage(image)
-
-
 
         nonlocal max_column
         frame = Frame(parent)
@@ -234,15 +244,21 @@ Select an item in your cart (right side) to remove 1x of it from the cart.""",
     filter_button_frames = Frame(frame)
     # All dishes
     TtkButton(
-        filter_button_frames, text="Dishes", command=lambda: update_ordering_tab(root, DISHES)
+        filter_button_frames,
+        text="Dishes",
+        command=lambda: update_ordering_tab(root, DISHES),
     ).pack()
     # All drinks
     TtkButton(
-        filter_button_frames, text="Drinks", command=lambda: update_ordering_tab(root, DRINKS)
+        filter_button_frames,
+        text="Drinks",
+        command=lambda: update_ordering_tab(root, DRINKS),
     ).pack()
     # All items
     TtkButton(
-        filter_button_frames, text="All Items", command=lambda: update_ordering_tab(root, ITEMS)
+        filter_button_frames,
+        text="All Items",
+        command=lambda: update_ordering_tab(root, ITEMS),
     ).pack()
 
     filter_button_frames.grid(row=1, column=1, padx=10, pady=10)
@@ -269,6 +285,7 @@ Select an item in your cart (right side) to remove 1x of it from the cart.""",
 
 def update_ordering_tab(root: Tk, items: list[Item]) -> None:
     tabs[0] = get_ordering_tab(root, items)
+
 
 if __name__ == "__main__":
     main()
