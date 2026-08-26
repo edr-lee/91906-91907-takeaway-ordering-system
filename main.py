@@ -138,10 +138,10 @@ def get_ordering_tab(root: Tk, items: list[Item]) -> Tab:
     cart_display.heading("quantity", text="Quantity")
     cart_display.heading("price_for_one", text="Price for one")
     cart_display.heading("total_price", text="Total price")
-    cart_display.column("#0", anchor="w", width=220)
-    cart_display.column("quantity", anchor="center", width=80)
-    cart_display.column("price_for_one", anchor="e", width=100)
-    cart_display.column("total_price", anchor="e", width=100)
+    cart_display.column("#0", anchor="w", width=150, stretch=False)
+    cart_display.column("quantity", anchor="center", width=60, stretch=False)
+    cart_display.column("price_for_one", anchor="e", width=90, stretch=False)
+    cart_display.column("total_price", anchor="e", width=90, stretch=False)
     cart_row_items: dict[str, Item] = {}
 
     def remove_selected_item_from_cart(event) -> None:
@@ -305,7 +305,7 @@ Select an item in your cart (right side) to remove 1x of it from the cart.""",
         frame, text="Checkout", command=lambda: ask_go_to_checkout()
     )
     checkout_button.grid(row=4, column=1, padx=10, pady=10)
-    cart_display.grid(row=1, column=2, rowspan=4, padx=10, pady=10, sticky="ns")
+    cart_display.grid(row=1, column=2, rowspan=4, padx=5, pady=10, sticky="ns")
     cart_display.bind("<<TreeviewSelect>>", remove_selected_item_from_cart)
 
     # Build cart display
