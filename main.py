@@ -82,9 +82,7 @@ def show_checkout_window() -> Toplevel:
     )
     Label(
         toplevel,
-        text=f"""Price of items: ${cart.total_price_without_tax():.2f}
-GST: ${cart.tax_amount():.2f}
-Total price: ${cart.total_price_with_tax():.2f}""",  # noqa: F821
+        text=cart.get_receipt() + "\n\nYour order has been saved.",  # noqa: F821
     ).grid(row=1, column=0)
 
     TtkButton(toplevel, text="Exit", command=root.destroy).grid(
