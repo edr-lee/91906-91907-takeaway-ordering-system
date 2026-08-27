@@ -1,6 +1,7 @@
 """Takeaway system GUI."""
 
 from abc import ABC
+from datetime import date
 from pathlib import Path
 from tkinter import Button as TkButton
 from tkinter import Label as TkLabel
@@ -37,6 +38,16 @@ tabs: list[Tab] = []
 root: Tk
 
 
+def save_receipt() -> None:
+    """Save the checkout receipt."""
+    date_str = date.today().isoformat()
+    checkout_path = Path(__file__).resolve().parent / f"{date_str}_receipt.txt"
+    checkout_path.write_text(
+        f"Date: {date_str}\n{cart.get_receipt()}\n",
+        encoding="utf-8",
+    )
+
+
 def main() -> None:
     """Takeaway system GUI."""
 
@@ -59,6 +70,7 @@ def show_main_window() -> None:
 
 
 def show_checkout_window() -> Toplevel:
+    save_receipt()
     root.withdraw()  # can't destroy main window because it'll kill toplevel
     toplevel = Toplevel(root)
     # don't leave the main window hanging if user closes toplevel

@@ -75,3 +75,13 @@ class Cart:
     def total_price_with_tax(self) -> float:
         """Calculate the total price of all items in the cart with tax."""
         return self.total_price_without_tax() + self.tax_amount()
+
+    def get_receipt(self) -> str:
+        items_str = "\n".join(str(item) for item in self.items)
+        return f"""Items for {self.name}:
+
+{items_str}
+
+Total (without tax): ${self.total_price_without_tax():.2f}
+Tax: ${self.tax_amount():.2f}
+Total (with tax): ${self.total_price_with_tax():.2f}"""
