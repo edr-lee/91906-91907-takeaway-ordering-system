@@ -2,11 +2,11 @@
 
 from abc import ABC
 from pathlib import Path
-from tkinter import Tk, Toplevel, messagebox
 from tkinter import Button as TkButton
 from tkinter import Label as TkLabel
-from tkinter.ttk import Button as TtkButton, Treeview
-from tkinter.ttk import Entry, Frame, Label
+from tkinter import Tk, Toplevel, messagebox
+from tkinter.ttk import Button as TtkButton
+from tkinter.ttk import Entry, Frame, Label, Treeview
 
 from PIL import Image, ImageDraw, ImageTk
 
@@ -251,7 +251,9 @@ def get_ordering_tab(root: Tk, items: list[Item]) -> Tab:
                 width=20,
                 height=3,
                 text=str(item),
-                font=data.style.lookup("TButton", "font"),  # need to manually grab TTk style because this is Tk object
+                font=data.style.lookup(
+                    "TButton", "font"
+                ),  # need to manually grab TTk style because this is Tk object
                 command=lambda item=item: add_to_cart(item),
             )
             item_button.grid(row=0, column=1, padx=5, pady=5)

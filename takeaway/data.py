@@ -1,10 +1,10 @@
 from __future__ import annotations
-from tkinter import Tk
-from tkinter.ttk import Style
 
 import os
 from json import loads
 from pathlib import Path
+from tkinter import Tk
+from tkinter.ttk import Style
 from typing import Any
 
 from takeaway import Dish, Drink, Item
