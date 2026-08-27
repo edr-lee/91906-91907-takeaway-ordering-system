@@ -180,7 +180,7 @@ def get_ordering_tab(root: Tk, items: list[Item]) -> Tab:
             elif isinstance(cart_item.item, Drink):
                 parent_iid = drinks_group_iid
             else:
-                raise ValueError(f"Unknown item type: {type(cart_item.item)}")
+                raise TypeError(f"Unknown item type: {type(cart_item.item)}")
             item_iid = f"item_{i}"
             cart_row_items[item_iid] = cart_item.item
             cart_display.insert(
