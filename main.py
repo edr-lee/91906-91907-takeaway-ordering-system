@@ -368,8 +368,13 @@ Select an item in your cart (right side) to remove 1x of it from the cart.""",
     ).pack()
 
     filter_button_frames.grid(row=1, column=1, padx=10, pady=10)
-    checkout_button = TtkButton(
-        frame, text="Checkout", command=lambda: ask_go_to_checkout()
+    checkout_button = TkButton(
+        frame,
+        text="Checkout",
+        width=10,
+        height=3,
+        borderwidth=4,
+        command=lambda: ask_go_to_checkout(),
     )
     checkout_button.grid(row=4, column=1, padx=10, pady=10)
     cart_display.grid(row=1, column=2, rowspan=4, padx=5, pady=10, sticky="ns")
