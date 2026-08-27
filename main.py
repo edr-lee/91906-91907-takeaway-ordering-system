@@ -42,8 +42,9 @@ def save_receipt() -> None:
     """Save the checkout receipt."""
     date_str = date.today().isoformat()
     checkout_path = Path(__file__).resolve().parent / f"{date_str}_receipt.txt"
+    prev = checkout_path.read_text(encoding="utf-8")
     checkout_path.write_text(
-        f"Date: {date_str}\n{cart.get_receipt()}\n",
+        f"{prev}\n\nDate: {date_str}\n{cart.get_receipt()}\n",
         encoding="utf-8",
     )
 
